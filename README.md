@@ -1,18 +1,16 @@
 # CSV Query Performance Benchmark
 
 ## Table of Contents
-- [Introduction](#introduction)
-- [Dataset Overview](#dataset-overview)
-- [Schema](#schema)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Results](#results)
-  - [Processing salary_tracker_1MB.csv](#processing-salary_tracker_1mbcsv)
-  - [Processing salary_tracker_10MB.csv](#processing-salary_tracker_10mbcsv)
-  - [Processing salary_tracker_100MB.csv](#processing-salary_tracker_100mbcsv)
-- [Graphs](#graphs)
-- [Conclusion](#conclusion)
+1. [Introduction](#introduction)
+2. [Dataset Overview](#dataset-overview)
+3. [Schema](#schema)
+4. [Requirements](#requirements)
+5. [Installation](#installation)
+6. [Usage](#usage)
+7. [Results](#results)
+8. [Query Performance Summary](#query-performance-summary)
+9. [Graphs](#graphs)
+10. [Conclusion](#conclusion)
 
 ## Introduction
 This project benchmarks the performance of SQL queries executed on a set of CSV files of varying sizes. The goal is to evaluate how query execution time varies with dataset size. The project involves loading CSV files into an SQLite database, executing a series of queries, and visualizing the execution time for each query.
@@ -57,117 +55,83 @@ python main.py
 ## Results
 The following outputs were generated during the execution of the queries on the different dataset sizes:
 
-## Results
+### Query Performance Summary
 
-### Processing salary_tracker_1MB.csv
+1. **Query 1**: 
+   ```sql
+   SELECT PersonName 
+   FROM salary_tracker 
+   WHERE BirthDate < '1975-01-01' AND Earnings > 130000;
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0788 seconds  |
+   | 10 MB File     | 0.0430 seconds  |
+   | 100 MB File    | 0.0446 seconds  |
 
-```sql
-Processing /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_1MB.csv...
-Loaded /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_1MB.csv into database salary_tracker.db
+2. **Query 2**: 
+   ```sql
+   SELECT PersonName, SchoolName 
+   FROM salary_tracker 
+   WHERE Earnings > 400000 AND StillWorking = 'no';
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0427 seconds  |
+   | 10 MB File     | 0.0418 seconds  |
+   | 100 MB File    | 0.0755 seconds  |
 
-Query: SELECT PersonName FROM salary_tracker 
-WHERE BirthDate < '1975-01-01' 
-AND Earnings = (SELECT MAX(Earnings) FROM salary_tracker WHERE PersonID = salary_tracker.PersonID) 
-AND Earnings > 130000;
-Execution Time: 0.0009 seconds
+3. **Query 3**: 
+   ```sql
+   SELECT PersonName 
+   FROM salary_tracker 
+   WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0423 seconds  |
+   | 10 MB File     | 0.0366 seconds  |
+   | 100 MB File    | 0.0727 seconds  |
 
-Query: SELECT PersonName, SchoolName FROM salary_tracker 
-WHERE Earnings > 400000 AND StillWorking = 'no';
-Execution Time: 0.0006 seconds
+4. **Query 4**: 
+   ```sql
+   SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount 
+   FROM salary_tracker 
+   WHERE StillWorking = 'yes' 
+   GROUP BY SchoolName, SchoolCampus 
+   ORDER BY ActiveFacultyCount DESC LIMIT 1;
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0432 seconds  |
+   | 10 MB File     | 0.0453 seconds  |
+   | 100 MB File    | 0.0856 seconds  |
 
-Query: SELECT PersonName FROM salary_tracker 
-WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
-Execution Time: 0.0005 seconds
+5. **Query 5**: 
+   ```sql
+   SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings 
+   FROM salary_tracker 
+   WHERE PersonName = 'Nikhil Premachandra Rao' 
+   GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0421 seconds  |
+   | 10 MB File     | 0.0419 seconds  |
+   | 100 MB File    | 0.0845 seconds  |
 
-Query: SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount 
-FROM salary_tracker WHERE StillWorking = 'yes' 
-GROUP BY SchoolName, SchoolCampus 
-ORDER BY ActiveFacultyCount DESC LIMIT 1;
-Execution Time: 0.0006 seconds
-
-Query: SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings 
-FROM salary_tracker WHERE PersonName = 'Nikhil Premachandra Rao' 
-GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
-Execution Time: 0.0004 seconds
-
-Query: SELECT DepartmentName, AVG(Earnings) AS AverageEarnings 
-FROM salary_tracker 
-GROUP BY DepartmentName ORDER BY AverageEarnings DESC LIMIT 1;
-Execution Time: 0.0016 seconds 
-```
-### Processing salary_tracker_10MB.csv
-
-```sql
-Processing /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_10MB.csv...
-Loaded /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_10MB.csv into database salary_tracker.db
-
-Query: SELECT PersonName FROM salary_tracker 
-WHERE BirthDate < '1975-01-01' 
-AND Earnings = (SELECT MAX(Earnings) FROM salary_tracker WHERE PersonID = salary_tracker.PersonID) 
-AND Earnings > 130000;
-Execution Time: 0.0115 seconds
-
-Query: SELECT PersonName, SchoolName FROM salary_tracker 
-WHERE Earnings > 400000 AND StillWorking = 'no';
-Execution Time: 0.0072 seconds
-
-Query: SELECT PersonName FROM salary_tracker 
-WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
-Execution Time: 0.0060 seconds
-
-Query: SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount 
-FROM salary_tracker WHERE StillWorking = 'yes' 
-GROUP BY SchoolName, SchoolCampus 
-ORDER BY ActiveFacultyCount DESC LIMIT 1;
-Execution Time: 0.0059 seconds
-
-Query: SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings 
-FROM salary_tracker WHERE PersonName = 'Nikhil Premachandra Rao' 
-GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
-Execution Time: 0.0045 seconds
-
-Query: SELECT DepartmentName, AVG(Earnings) AS AverageEarnings 
-FROM salary_tracker 
-GROUP BY DepartmentName ORDER BY AverageEarnings DESC LIMIT 1;
-Execution Time: 0.0213 seconds
-```
-
-### Processing salary_tracker_100MB.csv
-
-```sql
-Processing /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_100MB.csv...
-Loaded /Users/nikhilprao/Documents/csv_query_performance_benchmark/datasets/salary_tracker_100MB.csv into database salary_tracker.db
-
-Query: SELECT PersonName FROM salary_tracker 
-WHERE BirthDate < '1975-01-01' 
-AND Earnings = (SELECT MAX(Earnings) FROM salary_tracker WHERE PersonID = salary_tracker.PersonID) 
-AND Earnings > 130000;
-Execution Time: 0.1135 seconds
-
-Query: SELECT PersonName, SchoolName FROM salary_tracker 
-WHERE Earnings > 400000 AND StillWorking = 'no';
-Execution Time: 0.0732 seconds
-
-Query: SELECT PersonName FROM salary_tracker 
-WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
-Execution Time: 0.0570 seconds
-
-Query: SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount 
-FROM salary_tracker WHERE StillWorking = 'yes' 
-GROUP BY SchoolName, SchoolCampus 
-ORDER BY ActiveFacultyCount DESC LIMIT 1;
-Execution Time: 0.0580 seconds
-
-Query: SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings 
-FROM salary_tracker WHERE PersonName = 'Nikhil Premachandra Rao' 
-GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
-Execution Time: 0.0417 seconds
-
-Query: SELECT DepartmentName, AVG(Earnings) AS AverageEarnings 
-FROM salary_tracker 
-GROUP BY DepartmentName ORDER BY AverageEarnings DESC LIMIT 1;
-Execution Time: 0.2124 seconds
-```
+6. **Query 6**: 
+   ```sql
+   SELECT DepartmentName, AVG(Earnings) AS AverageEarnings 
+   FROM salary_tracker 
+   GROUP BY DepartmentName 
+   ORDER BY AverageEarnings DESC LIMIT 1;
+   ```
+   | File Size      | Execution Time |
+   |----------------|----------------|
+   | 1 MB File      | 0.0678 seconds  |
+   | 10 MB File     | 0.0582 seconds  |
+   | 100 MB File    | 0.0936 seconds  |
 
 ## Graphs
 
