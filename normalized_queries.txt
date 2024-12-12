@@ -1,0 +1,6 @@
+SELECT p.PersonName 
+FROM Person p 
+JOIN Employment e ON p.PersonID = e.PersonID 
+WHERE p.BirthDate < '1975-01-01' 
+AND e.Earnings = (SELECT MAX(Earnings) FROM Employment WHERE PersonID = e.PersonID) 
+AND e.Earnings > 130000;
