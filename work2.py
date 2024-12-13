@@ -158,6 +158,7 @@ for csv_file, results in execution_results.items():
     for query_name, result in results.items():
         print(f"{query_name}: {result}")
 
+print
 
 import matplotlib.pyplot as plt
 
@@ -165,7 +166,7 @@ import matplotlib.pyplot as plt
 file_sizes = [1, 10, 100]
 
 # Create a plot for each query
-for query, times in query_times.items():
+for query, times in execution_results.items():
     plt.figure(figsize=(8, 5))  # Create a new figure for each query
     
     # Plot the execution times

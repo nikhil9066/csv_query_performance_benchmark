@@ -1,1 +1,6 @@
 SELECT PersonName FROM salary_tracker WHERE BirthDate < '1975-01-01' AND Earnings = (SELECT MAX(Earnings) FROM salary_tracker WHERE PersonID = salary_tracker.PersonID) AND Earnings > 130000;
+SELECT PersonName, SchoolName FROM salary_tracker WHERE Earnings > 400000 AND StillWorking = 'no';
+SELECT PersonName FROM salary_tracker WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
+SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount FROM salary_tracker WHERE StillWorking = 'yes' GROUP BY SchoolName, SchoolCampus ORDER BY ActiveFacultyCount DESC LIMIT 1;
+SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings FROM salary_tracker WHERE PersonName = 'Nikhil Premachandra Rao' GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
+SELECT DepartmentName, AVG(Earnings) AS AverageEarnings FROM salary_tracker GROUP BY DepartmentName ORDER BY AverageEarnings DESC LIMIT 1;
