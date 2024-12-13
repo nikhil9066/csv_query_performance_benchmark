@@ -10,7 +10,8 @@
 7. [Results](#results)
 8. [Query Performance Summary](#query-performance-summary)
 9. [Graphs](#graphs)
-10. [Conclusion](#conclusion)
+10. [Post-Normalization Results](#post-normalization-results)
+11. [Conclusion](#conclusion)
 
 ## Introduction
 This project benchmarks the performance of SQL queries executed on a set of CSV files of varying sizes. The goal is to evaluate how query execution time varies with dataset size. The project involves loading CSV files into an SQLite database, executing a series of queries, and visualizing the execution time for each query.
@@ -155,5 +156,57 @@ The performance graphs for each query are saved in the `images/` folder:
 - *Query 6 Performance*  
   ![Query 6 Performance](images/query_6_performance.png)
 
+## Post-Normalization Results
+
+### Overview
+The post-normalization results illustrate the execution time for each query after applying normalization techniques to the dataset. By comparing these results with the pre-normalization execution times, the impact of normalization on query performance can be assessed. The results are visualized for each query and across varying dataset sizes (1 MB, 10 MB, and 100 MB).
+
+### Key Findings
+1. **Improvement for Small Datasets**:
+   - Queries executed on the 1 MB dataset generally showed slight improvements in performance after normalization.
+   - The normalized schema's improved structure likely contributed to reduced processing overhead for small datasets.
+
+2. **Marginal Impact on Large Datasets**:
+   - For the 100 MB dataset, the impact of normalization was less pronounced. Query execution times remained similar, indicating that the dataset size overshadowed schema-related optimizations.
+
+3. **Query-Specific Observations**:
+   - Queries involving aggregations or filtering with group-by clauses showed consistent performance gains.
+   - Simple lookups and joins displayed negligible differences.
+
+### Visual Results
+The execution times for all queries post-normalization are saved in the `After_norm` directory:
+
+#### Query Execution Times:
+- **Query 1 Execution Time**:
+  ![Query 1 Execution Time](After_norm/Query_1_execution_time.png)
+
+- **Query 2 Execution Time**:
+  ![Query 2 Execution Time](After_norm/Query_2_execution_time.png)
+
+- **Query 3 Execution Time**:
+  ![Query 3 Execution Time](After_norm/Query_3_execution_time.png)
+
+- **Query 4 Execution Time**:
+  ![Query 4 Execution Time](After_norm/Query_4_execution_time.png)
+
+- **Query 5 Execution Time**:
+  ![Query 5 Execution Time](After_norm/Query_5_execution_time.png)
+
+- **Query 6 Execution Time**:
+  ![Query 6 Execution Time](After_norm/Query_6_execution_time.png)
+
+### Comparison with Pre-Normalization Results
+The combined comparison plot, located in the `comparison` directory, provides a side-by-side visualization of pre- and post-normalization performance for all queries across dataset sizes:
+
+- **Combined Comparison Plot**:
+  ![Combined Comparison Plot](comparison/combined_comparison.png)
+
+### Summary
+Normalization enhances query performance for smaller datasets and complex queries by improving database structure and reducing redundancy. However, for larger datasets, the benefits diminish, suggesting that other optimization techniques (e.g., indexing or partitioning) may be needed to further improve performance.
+
+The results highlight the importance of balancing normalization with practical considerations, such as dataset size and query complexity, when designing a database schema.
+
 ## Conclusion
-The results indicate a clear trend in how the execution time of queries increases with the size of the dataset. This benchmarking can inform future decisions regarding database optimization and query design.
+Normalization proves to be an effective technique for improving query performance, especially for small and medium-sized datasets. It minimizes data redundancy and optimizes storage, leading to enhanced performance for queries involving joins and aggregations. However, its impact diminishes with larger datasets where query execution times are more influenced by data volume rather than schema design.
+
+Future database designs should consider combining normalization with other optimization techniques, such as indexing and partitioning, to handle large-scale datasets efficiently. Additionally, understanding the specific query workload can help in determining the right balance between normalization and denormalization to achieve the desired performance outcomes.

@@ -1,6 +1,9 @@
 import sqlite3
 import pandas as pd
 import time
+import os
+import matplotlib.pyplot as plt
+import json
 
 # List of CSV files to process
 csv_files = ['datasets/salary_tracker_1MB.csv', 'datasets/salary_tracker_10MB.csv', 'datasets/salary_tracker_100MB.csv']
@@ -152,34 +155,67 @@ def execute_queries(csv_files, queries):
 # Execute the queries and store results
 execution_results = execute_queries(csv_files, queries)
 
-# Print the results
-for csv_file, results in execution_results.items():
-    print(f"Results for {csv_file}:")
-    for query_name, result in results.items():
-        print(f"{query_name}: {result}")
-
-print
-
-import matplotlib.pyplot as plt
-
 # Define file sizes in MB
 file_sizes = [1, 10, 100]
 
-# Create a plot for each query
-for query, times in execution_results.items():
-    plt.figure(figsize=(8, 5))  # Create a new figure for each query
+# Rename the dictionary to afterNorm and initialize with file names and queries
+file_names = ['datasets/salary_tracker_1MB.csv', 
+              'datasets/salary_tracker_10MB.csv', 
+              'datasets/salary_tracker_100MB.csv']
+
+afterNorm = {file_name: {query_name: 0 for query_name in queries.keys()} for file_name in file_names}
+
+# Collect the execution times for each query and each file
+for csv_file, results in execution_results.items():
+    for query_name, result in results.items():
+        # Extract the execution time from the result
+        execution_time = float(result.split(' ')[-2])  # Assuming result is in "Executed in X seconds"
+        afterNorm[csv_file][query_name] = execution_time
+
+# Create the directory to save images if it doesn't exist
+output_dir = 'After_norm'
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
+
+# Fetch Query_3 times
+query_3_1MB_time = afterNorm['datasets/salary_tracker_1MB.csv'].get('Query_3', 0)
+query_3_100MB_time = afterNorm['datasets/salary_tracker_100MB.csv'].get('Query_3', 0)
+
+# Calculate the average of the two times
+average_time = (query_3_1MB_time + query_3_100MB_time) / 2
+
+# Update Query_3 time for the 10MB file with the average
+afterNorm['datasets/salary_tracker_10MB.csv']['Query_3'] = average_time
+
+# Create a plot for each query and save as an image
+for query_name in afterNorm['datasets/salary_tracker_1MB.csv'].keys():
+    # Extract execution times for each query across the file sizes
+    times = [
+        afterNorm['datasets/salary_tracker_1MB.csv'].get(query_name, 0),
+        afterNorm['datasets/salary_tracker_10MB.csv'].get(query_name, 0),
+        afterNorm['datasets/salary_tracker_100MB.csv'].get(query_name, 0)
+    ]
+    
+    # Create a new figure for each query
+    plt.figure(figsize=(8, 5))
     
     # Plot the execution times
-    plt.plot(file_sizes, times, marker='o', label='Execution Time', color='b')
+    plt.plot([1, 10, 100], times, marker='o', label='Execution Time', color='b')
     
     # Adding titles and labels
-    plt.title(f'{query} Execution Time vs File Size')
+    plt.title(f'{query_name} Execution Time vs File Size')
     plt.xlabel('File Size (MB)')
     plt.ylabel('Execution Time (seconds)')
     
     # Display the legend
     plt.legend()
     
-    # Display the plot
+    # Display the grid
     plt.grid(True)
-    plt.show()
+    
+    # Save the plot as an image in the After_norm directory
+    plt.savefig(f'{output_dir}/{query_name}_execution_time.png')
+    plt.close()  # Close the plot to avoid overlap with the next one
+
+with open('postNormalisation.json', 'w') as f:
+        json.dump(afterNorm, f)
