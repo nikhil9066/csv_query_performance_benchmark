@@ -30,6 +30,7 @@ queries = load_queries(query_file)
 
 # Function to execute queries and measure execution time
 def execute_queries(csv_files, queries):
+    result = {}  # Dictionary to store the output for each file
     for csv_file in csv_files:
         print(f"Processing file: {csv_file}")
         
@@ -88,41 +89,96 @@ def execute_queries(csv_files, queries):
             )
         ''')
 
-        # Insert data into the tables
-        for _, row in df.iterrows():
-            cursor.execute('''
+        # Begin a transaction for batch inserts
+        cursor.execute('BEGIN TRANSACTION;')
+
+        try:
+            # Use executemany for batch inserts to improve performance
+            cursor.executemany('''
                 INSERT OR REPLACE INTO Person (PersonID, PersonName, BirthDate, StillWorking) 
                 VALUES (?, ?, ?, ?)
-            ''', (row['PersonID'], row['PersonName'], row['BirthDate'], row['StillWorking']))
+            ''', df[['PersonID', 'PersonName', 'BirthDate', 'StillWorking']].values.tolist())
 
-            cursor.execute('''
+            cursor.executemany('''
                 INSERT OR REPLACE INTO School (SchoolID, SchoolName, SchoolCampus) 
                 VALUES (?, ?, ?)
-            ''', (row['SchoolID'], row['SchoolName'], row['SchoolCampus']))
+            ''', df[['SchoolID', 'SchoolName', 'SchoolCampus']].values.tolist())
 
-            cursor.execute('''
+            cursor.executemany('''
                 INSERT OR REPLACE INTO Department (DepartmentID, DepartmentName) 
                 VALUES (?, ?)
-            ''', (row['DepartmentID'], row['DepartmentName']))
+            ''', df[['DepartmentID', 'DepartmentName']].values.tolist())
 
-            cursor.execute('''
+            cursor.executemany('''
                 INSERT OR REPLACE INTO Job (JobID, JobTitle) 
                 VALUES (?, ?)
-            ''', (row['JobID'], row['JobTitle']))
+            ''', df[['JobID', 'JobTitle']].values.tolist())
 
-            cursor.execute('''
+            cursor.executemany('''
                 INSERT INTO Employment (PersonID, SchoolID, DepartmentID, JobID, Earnings, EarningsYear) 
                 VALUES (?, ?, ?, ?, ?, ?)
-            ''', (row['PersonID'], row['SchoolID'], row['DepartmentID'], row['JobID'], row['Earnings'], row['EarningsYear']))
+            ''', df[['PersonID', 'SchoolID', 'DepartmentID', 'JobID', 'Earnings', 'EarningsYear']].values.tolist())
 
+            # Commit the transaction
+            cursor.execute('COMMIT;')
+
+        except sqlite3.DatabaseError as e:
+            # Rollback in case of an error
+            cursor.execute('ROLLBACK;')
+            print(f"Error inserting data into tables: {e}")
+            continue
+
+        # Dictionary to store execution times for queries
+        query_results = {}
+        
         # Execute each query and measure execution time
         for query_name, query in queries.items():
             start_time = time.time()
-            cursor.execute(query)
-            execution_time = time.time() - start_time
-            print(f"{query_name} executed in {execution_time:.6f} seconds")
+            try:
+                cursor.execute(query)
+                execution_time = time.time() - start_time
+                query_results[query_name] = f"Executed in {execution_time:.6f} seconds"
+            except sqlite3.DatabaseError as e:
+                query_results[query_name] = f"Error: {e}"
+
+        # Store query results in the result dictionary for each file
+        result[csv_file] = query_results
         
+        # Close the connection to the database
         conn.close()
 
-# Execute the queries
-execute_queries(csv_files, queries)
+    return result
+
+# Execute the queries and store results
+execution_results = execute_queries(csv_files, queries)
+
+# Print the results
+for csv_file, results in execution_results.items():
+    print(f"Results for {csv_file}:")
+    for query_name, result in results.items():
+        print(f"{query_name}: {result}")
+
+
+import matplotlib.pyplot as plt
+
+# Define file sizes in MB
+file_sizes = [1, 10, 100]
+
+# Create a plot for each query
+for query, times in query_times.items():
+    plt.figure(figsize=(8, 5))  # Create a new figure for each query
+    
+    # Plot the execution times
+    plt.plot(file_sizes, times, marker='o', label='Execution Time', color='b')
+    
+    # Adding titles and labels
+    plt.title(f'{query} Execution Time vs File Size')
+    plt.xlabel('File Size (MB)')
+    plt.ylabel('Execution Time (seconds)')
+    
+    # Display the legend
+    plt.legend()
+    
+    # Display the plot
+    plt.grid(True)
+    plt.show()
