@@ -57,82 +57,84 @@ python main.py
 The following outputs were generated during the execution of the queries on the different dataset sizes:
 
 ### Query Performance Summary
+#### Execution Times with Pre and Post Normalization Values
 
-1. **Query 1**: 
+1. **Query 1**:
    ```sql
-   SELECT PersonName 
-   FROM salary_tracker 
+   SELECT PersonName
+   FROM salary_tracker
    WHERE BirthDate < '1975-01-01' AND Earnings > 130000;
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0788 seconds  |
-   | 10 MB File     | 0.0430 seconds  |
-   | 100 MB File    | 0.0446 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0788 seconds                     | 0.001442                             |
+   | 10 MB File     | 0.0430 seconds                     | 0.020687                             |
+   | 100 MB File    | 0.0446 seconds                     | 0.039361                             |
 
-2. **Query 2**: 
+2. **Query 2**:
    ```sql
-   SELECT PersonName, SchoolName 
-   FROM salary_tracker 
+   SELECT PersonName, SchoolName
+   FROM salary_tracker
    WHERE Earnings > 400000 AND StillWorking = 'no';
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0427 seconds  |
-   | 10 MB File     | 0.0418 seconds  |
-   | 100 MB File    | 0.0755 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0427 seconds                     | 0.000022                             |
+   | 10 MB File     | 0.0418 seconds                     | 0.000038                             |
+   | 100 MB File    | 0.0755 seconds                     | 0.000058                             |
 
-3. **Query 3**: 
+3. **Query 3**:
    ```sql
-   SELECT PersonName 
-   FROM salary_tracker 
+   SELECT PersonName
+   FROM salary_tracker
    WHERE JobTitle = 'Lecturer' AND SchoolName = 'University of Texas' AND StillWorking = 'no';
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0423 seconds  |
-   | 10 MB File     | 0.0366 seconds  |
-   | 100 MB File    | 0.0727 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0423 seconds                     | 0.000052                             |
+   | 10 MB File     | 0.0366 seconds                     | 0.000059                             |
+   | 100 MB File    | 0.0727 seconds                     | 0.000067                             |
 
-4. **Query 4**: 
+4. **Query 4**:
    ```sql
-   SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount 
-   FROM salary_tracker 
-   WHERE StillWorking = 'yes' 
-   GROUP BY SchoolName, SchoolCampus 
+   SELECT SchoolName, SchoolCampus, COUNT(*) AS ActiveFacultyCount
+   FROM salary_tracker
+   WHERE StillWorking = 'yes'
+   GROUP BY SchoolName, SchoolCampus
    ORDER BY ActiveFacultyCount DESC LIMIT 1;
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0432 seconds  |
-   | 10 MB File     | 0.0453 seconds  |
-   | 100 MB File    | 0.0856 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0432 seconds                     | 0.003971                             |
+   | 10 MB File     | 0.0453 seconds                     | 0.032717                             |
+   | 100 MB File    | 0.0856 seconds                     | 0.357094                             |
 
-5. **Query 5**: 
+5. **Query 5**:
    ```sql
-   SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings 
-   FROM salary_tracker 
-   WHERE PersonName = 'Nikhil Premachandra Rao' 
+   SELECT PersonName, JobTitle, DepartmentName, SchoolName, MAX(Earnings) AS MostRecentEarnings
+   FROM salary_tracker
+   WHERE PersonName = 'Nikhil Premachandra Rao'
    GROUP BY PersonName, JobTitle, DepartmentName, SchoolName;
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0421 seconds  |
-   | 10 MB File     | 0.0419 seconds  |
-   | 100 MB File    | 0.0845 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0421 seconds                     | 0.002983                             |
+   | 10 MB File     | 0.0419 seconds                     | 0.024761                             |
+   | 100 MB File    | 0.0845 seconds                     | 0.290224                             |
 
-6. **Query 6**: 
+6. **Query 6**:
    ```sql
-   SELECT DepartmentName, AVG(Earnings) AS AverageEarnings 
-   FROM salary_tracker 
-   GROUP BY DepartmentName 
+   SELECT DepartmentName, AVG(Earnings) AS AverageEarnings
+   FROM salary_tracker
+   GROUP BY DepartmentName
    ORDER BY AverageEarnings DESC LIMIT 1;
    ```
-   | File Size      | Execution Time |
-   |----------------|----------------|
-   | 1 MB File      | 0.0678 seconds  |
-   | 10 MB File     | 0.0582 seconds  |
-   | 100 MB File    | 0.0936 seconds  |
+   | File Size      | Execution Time (Pre-Normalization) | Execution Time (Post-Normalization) |
+   |----------------|------------------------------------|--------------------------------------|
+   | 1 MB File      | 0.0678 seconds                     | 0.003334                             |
+   | 10 MB File     | 0.0582 seconds                     | 0.035898                             |
+   | 100 MB File    | 0.0936 seconds                     | 0.408408                             |
+
 
 ## Graphs
 
