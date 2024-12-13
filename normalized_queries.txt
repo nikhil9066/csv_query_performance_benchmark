@@ -1,6 +1,56 @@
-SELECT p.PersonName 
-FROM Person p 
-JOIN Employment e ON p.PersonID = e.PersonID 
-WHERE p.BirthDate < '1975-01-01' 
-AND e.Earnings = (SELECT MAX(Earnings) FROM Employment WHERE PersonID = e.PersonID) 
-AND e.Earnings > 130000;
+-- Query_1
+SELECT p.PersonName
+FROM Person p
+JOIN Employment e ON p.PersonID = e.PersonID
+WHERE p.BirthDate < '1975-01-01'
+  AND e.Earnings = (
+    SELECT MAX(Earnings) 
+    FROM Employment 
+    WHERE PersonID = e.PersonID
+  )
+  AND e.Earnings > 130000;
+
+-- Query_2
+SELECT p.PersonName, s.SchoolName
+FROM Person p
+JOIN Employment e ON p.PersonID = e.PersonID
+JOIN School s ON e.SchoolID = s.SchoolID
+WHERE e.Earnings > 400000 AND p.StillWorking = 'no';
+
+-- Query_3
+SELECT p.PersonName
+FROM Person p
+JOIN Employment e ON p.PersonID = e.PersonID
+JOIN Job j ON e.JobID = j.JobID
+JOIN School s ON e.SchoolID = s.SchoolID
+WHERE j.JobTitle = 'Lecturer'
+  AND s.SchoolName = 'University of Texas'
+  AND p.StillWorking = 'no';
+
+-- Query_4
+SELECT s.SchoolName, s.SchoolCampus, COUNT(*) AS ActiveFacultyCount
+FROM School s
+JOIN Employment e ON s.SchoolID = e.SchoolID
+JOIN Person p ON e.PersonID = p.PersonID
+WHERE p.StillWorking = 'yes'
+GROUP BY s.SchoolName, s.SchoolCampus
+ORDER BY ActiveFacultyCount DESC
+LIMIT 1;
+
+-- Query_5
+SELECT p.PersonName, j.JobTitle, d.DepartmentName, s.SchoolName, MAX(e.Earnings) AS MostRecentEarnings
+FROM Person p
+JOIN Employment e ON p.PersonID = e.PersonID
+JOIN Job j ON e.JobID = j.JobID
+JOIN Department d ON e.DepartmentID = d.DepartmentID
+JOIN School s ON e.SchoolID = s.SchoolID
+WHERE p.PersonName = 'Nikhil Premachandra Rao'
+GROUP BY p.PersonName, j.JobTitle, d.DepartmentName, s.SchoolName;
+
+-- Query_6
+SELECT d.DepartmentName, AVG(e.Earnings) AS AverageEarnings
+FROM Department d
+JOIN Employment e ON d.DepartmentID = e.DepartmentID
+GROUP BY d.DepartmentName
+ORDER BY AverageEarnings DESC
+LIMIT 1;
