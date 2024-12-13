@@ -4,24 +4,6 @@ import pandas as pd
 import time
 import matplotlib.pyplot as plt
 
-# Normalize CSV into multiple tables
-def normalize_csv_and_create_schema(csv_file, db_name='salary_tracker_normalized.db'):
-    conn = sqlite3.connect(db_name)
-    df = pd.read_csv(csv_file)
-
-    # Normalize tables
-    person = df[['PersonID', 'PersonName', 'BirthDate']].drop_duplicates()
-    employment = df[['PersonID', 'JobTitle', 'DepartmentName', 'Earnings', 'StillWorking']].drop_duplicates()
-    school = df[['SchoolName', 'SchoolCampus', 'PersonID']].drop_duplicates()
-
-    # Write to database
-    person.to_sql('Person', conn, if_exists='replace', index=False)
-    employment.to_sql('Employment', conn, if_exists='replace', index=False)
-    school.to_sql('School', conn, if_exists='replace', index=False)
-
-    print(f"Normalized {csv_file} and created schema in {db_name}")
-    return conn
-
 # Load CSV into SQLite
 def load_csv_to_db(csv_file, db_name='salary_tracker.db'):
     conn = sqlite3.connect(db_name)
